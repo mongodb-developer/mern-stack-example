@@ -15,9 +15,10 @@ module.exports = {
       if (db)
       {
         _db = db.db("myFirstDatabase");
+        console.log("Successfully connected to MongoDB."); 
       }
       return callback(err);
-      console.log("Successfully connected to MongoDB.");    });
+         });
   },
 
   getDb: function () {
