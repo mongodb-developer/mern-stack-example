@@ -22,3 +22,7 @@ cd mern/client
 npm install
 npm start
 ```
+
+## Disclaimer
+
+Use at your own risk; not a supported MongoDB product
