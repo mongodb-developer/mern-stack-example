@@ -1,5 +1,5 @@
 # mern-stack-example
-Mern Stack code for the Mern Tutorial
+Mern Stack code for the [Mern Tutorial](https://www.mongodb.com/languages/mern-stack-tutorial)
 
 ## How To Run
 Create an Atlas URI connection parameter in `mern/server/config.env` with your Atlas URI:
