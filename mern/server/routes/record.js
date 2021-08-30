@@ -20,6 +20,18 @@ recordRoutes.route("/record").get(function (req, res) {
     });
 });
 
+// This section will help you get a single record by id
+recordRoutes.route("/record/:id").get(function (req, res) {
+  let db_connect = dbo.getDb("employees");
+  let myquery = { id: req.body.id };
+  db_connect
+      .collection("records")
+      .findOne(myquery, function (err, result) {
+        if (err) throw err;
+        res.json(result);
+      });
+});
+
 // This section will help you create a new record.
 recordRoutes.route("/record/add").post(function (req, res) {
   let db_connect = dbo.getDb("employees");
