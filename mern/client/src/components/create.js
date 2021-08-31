@@ -50,7 +50,7 @@ export default class Create extends Component {
     };
 
     axios
-      .post("http://localhost:3000/record/add", newperson)
+      .post("http://localhost:5000/record/add", newperson)
       .then((res) => console.log(res.data));
 
     // We will empty the state after posting the data to the database
