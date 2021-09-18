@@ -9,7 +9,6 @@ const recordRoutes = express.Router();
 const dbo = require("../db/conn");
 
 // This help convert the id from string to ObjectId for the _id.
-// Without the convert, findOne() by _id won't work.
 const ObjectId = require("mongodb").ObjectId;
 
 
@@ -26,10 +25,6 @@ recordRoutes.route("/record").get(function (req, res) {
 });
 
 // This section will help you get a single record by id
-// _id should be used to find the record by id.
-// req.params.id should be used for identifying the record, 
-// because there is not any req.body.id passed from the front-end.
-// The 'employees' symbol should be removed, because the getDb() does not receive any params.
 recordRoutes.route("/record/:id").get(function (req, res) {
   let db_connect = dbo.getDb();
   let myquery = { _id: ObjectId( req.params.id )};
@@ -42,7 +37,6 @@ recordRoutes.route("/record/:id").get(function (req, res) {
 });
 
 // This section will help you create a new record.
-// The 'employees' symbol should be removed, because the getDb() does not receive any params.
 recordRoutes.route("/record/add").post(function (req, res) {
   let db_connect = dbo.getDb();
   let myobj = {
@@ -56,10 +50,6 @@ recordRoutes.route("/record/add").post(function (req, res) {
 });
 
 // This section will help you update a record by id.
-// _id should be used to find the record by id.
-// req.params.id should be used for identifying the record, 
-// because there is not any req.body.id passed from the front-end.
-// The 'employees' symbol should be removed, because the getDb() does not receive any params.
 recordRoutes.route("/update/:id").post(function (req, res) {
   let db_connect = dbo.getDb();
   let myquery = { _id: ObjectId( req.params.id )};
@@ -79,8 +69,6 @@ recordRoutes.route("/update/:id").post(function (req, res) {
 });
 
 // This section will help you delete a record
-// The 'employees' symbol should be removed, because the getDb() does not receive any params.
-
 recordRoutes.route("/:id").delete((req, res) => {
   let db_connect = dbo.getDb();
   let myquery = { _id: ObjectId( req.params.id )};
