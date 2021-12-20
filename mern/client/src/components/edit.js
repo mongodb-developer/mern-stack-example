@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router";
 // This will require to npm install axios
 import axios from "axios";
-import { withRouter } from "react-router";
 
-function Edit(props) {
+export default function Edit() {
   const [form, setForm] = useState({
     person_name: "",
     person_position: "",
     person_level: "",
     records: [],
   });
+  const params = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/record/" + props.match.params.id)
+      .get("http://localhost:5000/record/" + params.id)
       .then((response) => {
         setForm({
           person_name: response.data.person_name,
@@ -24,7 +26,7 @@ function Edit(props) {
       .catch(function (error) {
         console.log(error);
       });
-  }, [props.match.params.id]);
+  }, [params.id]);
 
   // These methods will update the state properties.
 
@@ -46,12 +48,12 @@ function Edit(props) {
     // This will send a post request to update the data in the database.
     axios
       .post(
-        "http://localhost:5000/update/" + props.match.params.id,
+        "http://localhost:5000/update/" + params.id,
         newEditedperson
       )
       .then((res) => console.log(res.data));
 
-    props.history.push("/");
+    navigate("/");
   }
 
   // This following section will display the update-form that takes the input from the user to update the data.
@@ -128,8 +130,3 @@ function Edit(props) {
     </div>
   );
 }
-
-// You can get access to the history object's properties and the closest <Route>'s match via the withRouter
-// higher-order component. This makes it easier for us to edit our records.
-
-export default withRouter(Edit);
