@@ -24,27 +24,23 @@ export default function RecordList() {
 
   // This method fetches the records from the database.
   useEffect(() => {
-    let mounted = true;
-
     async function getRecords() {
-      if (mounted) {
-        const response = await fetch(`http://localhost:5000/record/`);
+      const response = await fetch(`http://localhost:5000/record/`);
 
-        if (!response.ok) {
-          const message = `An error occured: ${response.statusText}`;
-          window.alert(message);
-          return;
-        }
-
-        const records = await response.json();
-        setRecords(records);
+      if (!response.ok) {
+        const message = `An error occured: ${response.statusText}`;
+        window.alert(message);
+        return;
       }
+
+      const records = await response.json();
+      setRecords(records);
     }
 
     getRecords();
 
-    return () => mounted = false;
-  });
+    return; 
+  }, [records.length]);
 
   // This method will delete a record
   async function deleteRecord(id) {
