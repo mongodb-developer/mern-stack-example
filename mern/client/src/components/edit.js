@@ -1,73 +1,85 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-// This will require to npm install axios
-import axios from "axios";
 
 export default function Edit() {
   const [form, setForm] = useState({
-    person_name: "",
-    person_position: "",
-    person_level: "",
+    name: "",
+    position: "",
+    level: "",
     records: [],
   });
   const params = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/record/" + params.id)
-      .then((response) => {
-        setForm({
-          person_name: response.data.person_name,
-          person_position: response.data.person_position,
-          person_level: response.data.person_level,
-        });
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }, [params.id]);
+    let mounted = true; 
+    async function fetchData() {
+      if (mounted) {
+
+        const id = params.id.toString();
+        const response = await fetch(`http://localhost:5000/record/${params.id.toString()}`);
+
+        if (!response.ok) {
+          const message = `An error has occured: ${response.statusText}`;
+          window.alert(message);
+          return;
+        }
+
+        const record = await response.json();
+        if (!record) {
+          window.alert(`Record with id ${id} not found`);
+          navigate("/");
+          return;
+        }
+
+        setForm(record);
+      }
+    }
+
+    fetchData();
+
+    return () => mounted = false;
+  }, [params.id, navigate]);
 
   // These methods will update the state properties.
-
   function updateForm(value) {
     return setForm((prev) => {
       return { ...prev, ...value };
     });
   }
 
-  function onSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
-    const newEditedperson = {
-      person_name: form.person_name,
-      person_position: form.person_position,
-      person_level: form.person_level,
+    const editedPerson = {
+      name: form.name,
+      position: form.position,
+      level: form.level,
     };
-    console.log(newEditedperson);
 
     // This will send a post request to update the data in the database.
-    axios
-      .post(
-        "http://localhost:5000/update/" + params.id,
-        newEditedperson
-      )
-      .then((res) => console.log(res.data));
+    await fetch(`http://localhost:5000/update/${params.id}`, {
+      method: "POST",
+      body: JSON.stringify(editedPerson),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
 
     navigate("/");
   }
 
-  // This following section will display the update-form that takes the input from the user to update the data.
+  // This following section will display the form that takes input from the user to update the data.
   return (
     <div>
-      <h3 align="center">Update Record</h3>
+      <h3>Update Record</h3>
       <form onSubmit={onSubmit}>
         <div className="form-group">
           <label>Person's Name: </label>
           <input
             type="text"
             className="form-control"
-            value={form.person_name}
-            onChange={(e) => updateForm({ person_name: e.target.value })}
+            value={form.name}
+            onChange={(e) => updateForm({ name: e.target.value })}
           />
         </div>
         <div className="form-group">
@@ -75,8 +87,8 @@ export default function Edit() {
           <input
             type="text"
             className="form-control"
-            value={form.person_position}
-            onChange={(e) => updateForm({ person_position: e.target.value })}
+            value={form.position}
+            onChange={(e) => updateForm({ position: e.target.value })}
           />
         </div>
         <div className="form-group">
@@ -87,8 +99,8 @@ export default function Edit() {
               name="priorityOptions"
               id="priorityLow"
               value="Intern"
-              checked={form.person_level === "Intern"}
-              onChange={(e) => updateForm({ person_level: e.target.value })}
+              checked={form.level === "Intern"}
+              onChange={(e) => updateForm({ level: e.target.value })}
             />
             <label className="form-check-label">Intern</label>
           </div>
@@ -99,8 +111,8 @@ export default function Edit() {
               name="priorityOptions"
               id="priorityMedium"
               value="Junior"
-              checked={form.person_level === "Junior"}
-              onChange={(e) => updateForm({ person_level: e.target.value })}
+              checked={form.level === "Junior"}
+              onChange={(e) => updateForm({ level: e.target.value })}
             />
             <label className="form-check-label">Junior</label>
           </div>
@@ -111,11 +123,11 @@ export default function Edit() {
               name="priorityOptions"
               id="priorityHigh"
               value="Senior"
-              checked={form.person_level === "Senior"}
-              onChange={(e) => updateForm({ person_level: e.target.value })}
+              checked={form.level === "Senior"}
+              onChange={(e) => updateForm({ level: e.target.value })}
             />
             <label className="form-check-label">Senior</label>
-          </div>
+        </div>
         </div>
         <br />
 

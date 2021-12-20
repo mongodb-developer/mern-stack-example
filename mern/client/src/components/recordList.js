@@ -1,23 +1,20 @@
 import React, { useEffect, useState } from "react";
-// This will require to npm install axios
-import axios from "axios";
 import { Link } from "react-router-dom";
 
 const Record = (props) => (
   <tr>
-    <td>{props.record.person_name}</td>
-    <td>{props.record.person_position}</td>
-    <td>{props.record.person_level}</td>
+    <td>{props.record.name}</td>
+    <td>{props.record.position}</td>
+    <td>{props.record.level}</td>
     <td>
-      <Link to={"/edit/" + props.record._id}>Edit</Link> |
-      <a
-        href="/"
+      <Link className="btn btn-link" to={`/edit/${props.record._id}`}>Edit</Link> |
+      <button className="btn btn-link"
         onClick={() => {
           props.deleteRecord(props.record._id);
         }}
       >
         Delete
-      </a>
+      </button>
     </td>
   </tr>
 );
@@ -25,35 +22,48 @@ const Record = (props) => (
 export default function RecordList() {
   const [records, setRecords] = useState([]);
 
-  // This method will get the data from the database.
+  // This method fetches the records from the database.
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/record/")
-      .then((response) => {
-        setRecords(response.data);
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
+    let mounted = true;
+
+    async function getRecords() {
+      if (mounted) {
+        const response = await fetch(`http://localhost:5000/record/`);
+
+        if (!response.ok) {
+          const message = `An error occured: ${response.statusText}`;
+          window.alert(message);
+          return;
+        }
+
+        const records = await response.json();
+        setRecords(records);
+      }
+    }
+
+    getRecords();
+
+    return () => mounted = false;
   });
 
-  // This method will delete a record based on the method
-  function deleteRecord(id) {
-    axios.delete("http://localhost:5000/" + id).then((response) => {
-      console.log(response.data);
+  // This method will delete a record
+  async function deleteRecord(id) {
+    await fetch(`http://localhost:5000/${id}`, {
+      method: "DELETE"
     });
 
-    setRecords(records.filter((el) => el._id !== id));
+    const newRecords = records.filter((el) => el._id !== id);
+    setRecords(newRecords);
   }
 
   // This method will map out the records on the table
   function recordList() {
-    return records.map((currentrecord) => {
+    return records.map((record) => {
       return (
         <Record
-          record={currentrecord}
-          deleteRecord={deleteRecord}
-          key={currentrecord._id}
+          record={record}
+          deleteRecord={() => deleteRecord(record._id)}
+          key={record._id}
         />
       );
     });
