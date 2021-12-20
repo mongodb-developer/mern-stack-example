@@ -12,8 +12,7 @@ Start server:
 ```
 cd mern/server
 npm install
-npm install -g nodemon
-nodemon server
+npm start
 ```
 
 Start Web server
