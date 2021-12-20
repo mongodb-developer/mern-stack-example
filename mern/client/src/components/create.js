@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
-// This will require to npm install axios
-import axios from "axios";
 
 export default function Create() {
   const [form, setForm] = useState({
-    person_name: "",
-    person_position: "",
-    person_level: "",
+    name: "",
+    position: "",
+    level: "",
   });
   const navigate = useNavigate();
 
@@ -19,46 +17,49 @@ export default function Create() {
   }
 
   // This function will handle the submission.
-  function onSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
 
-    // When post request is sent to the create url, axios will add a new record(newperson) to the database.
-    const newperson = {
-      person_name: form.person_name,
-      person_position: form.person_position,
-      person_level: form.person_level,
-    };
+    // When a post request is sent to the create url, we'll add a new record to the database.
+    const newPerson = { ...form };
 
-    axios
-      .post("http://localhost:5000/record/add", newperson)
-      .then((res) => console.log(res.data))
-      .finally(() => {
-        // We will empty the state after posting the data to the database
-        setForm({ person_name: "", person_position: "", person_level: "" });
-        navigate("/");
-      });
+    await fetch("http://localhost:5000/record/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newPerson),
+    })
+    .catch(error => {
+      window.alert(error);
+      return;
+    });
+
+    setForm({ name: "", position: "", level: "" });
+    navigate("/");
   }
+
   // This following section will display the form that takes the input from the user.
   return (
-    <div style={{ marginTop: 20 }}>
+    <div>
       <h3>Create New Record</h3>
       <form onSubmit={onSubmit}>
         <div className="form-group">
-          <label>Name of the person: </label>
+          <label>Name</label>
           <input
             type="text"
             className="form-control"
-            value={form.person_name}
-            onChange={(e) => updateForm({ person_name: e.target.value })}
+            value={form.name}
+            onChange={(e) => updateForm({ name: e.target.value })}
           />
         </div>
         <div className="form-group">
-          <label>Person's position: </label>
+          <label>Position</label>
           <input
             type="text"
             className="form-control"
-            value={form.person_position}
-            onChange={(e) => updateForm({ person_position: e.target.value })}
+            value={form.position}
+            onChange={(e) => updateForm({ position: e.target.value })}
           />
         </div>
         <div className="form-group">
@@ -69,8 +70,8 @@ export default function Create() {
               name="priorityOptions"
               id="priorityLow"
               value="Intern"
-              checked={form.person_level === "Intern"}
-              onChange={(e) => updateForm({ person_level: e.target.value })}
+              checked={form.level === "Intern"}
+              onChange={(e) => updateForm({ level: e.target.value })}
             />
             <label className="form-check-label">Intern</label>
           </div>
@@ -81,8 +82,8 @@ export default function Create() {
               name="priorityOptions"
               id="priorityMedium"
               value="Junior"
-              checked={form.person_level === "Junior"}
-              onChange={(e) => updateForm({ person_level: e.target.value })}
+              checked={form.level === "Junior"}
+              onChange={(e) => updateForm({ level: e.target.value })}
             />
             <label className="form-check-label">Junior</label>
           </div>
@@ -93,8 +94,8 @@ export default function Create() {
               name="priorityOptions"
               id="priorityHigh"
               value="Senior"
-              checked={form.person_level === "Senior"}
-              onChange={(e) => updateForm({ person_level: e.target.value })}
+              checked={form.level === "Senior"}
+              onChange={(e) => updateForm({ level: e.target.value })}
             />
             <label className="form-check-label">Senior</label>
           </div>
