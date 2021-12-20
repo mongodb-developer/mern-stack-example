@@ -77,7 +77,7 @@ recordRoutes.route("/:id").delete((req, response) => {
   db_connect.collection("records").deleteOne(myquery, function (err, obj) {
     if (err) throw err;
     console.log("1 document deleted");
-    response.status(obj);
+    response.json(obj);
   });
 });
 

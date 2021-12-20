@@ -12,33 +12,29 @@ export default function Edit() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    let mounted = true; 
     async function fetchData() {
-      if (mounted) {
+      const id = params.id.toString();
+      const response = await fetch(`http://localhost:5000/record/${params.id.toString()}`);
 
-        const id = params.id.toString();
-        const response = await fetch(`http://localhost:5000/record/${params.id.toString()}`);
-
-        if (!response.ok) {
-          const message = `An error has occured: ${response.statusText}`;
-          window.alert(message);
-          return;
-        }
-
-        const record = await response.json();
-        if (!record) {
-          window.alert(`Record with id ${id} not found`);
-          navigate("/");
-          return;
-        }
-
-        setForm(record);
+      if (!response.ok) {
+        const message = `An error has occured: ${response.statusText}`;
+        window.alert(message);
+        return;
       }
+
+      const record = await response.json();
+      if (!record) {
+        window.alert(`Record with id ${id} not found`);
+        navigate("/");
+        return;
+      }
+
+      setForm(record);
     }
 
     fetchData();
 
-    return () => mounted = false;
+    return;
   }, [params.id, navigate]);
 
   // These methods will update the state properties.
