@@ -1,7 +1,7 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router";
 // This will require to npm install axios
 import axios from "axios";
-import { useHistory } from "react-router";
 
 export default function Create() {
   const [form, setForm] = useState({
@@ -9,7 +9,7 @@ export default function Create() {
     person_position: "",
     person_level: "",
   });
-  const history = useHistory();
+  const navigate = useNavigate();
 
   // These methods will update the state properties.
   function updateForm(value) {
@@ -35,7 +35,7 @@ export default function Create() {
       .finally(() => {
         // We will empty the state after posting the data to the database
         setForm({ person_name: "", person_position: "", person_level: "" });
-        history.push("/");
+        navigate("/");
       });
   }
   // This following section will display the form that takes the input from the user.
