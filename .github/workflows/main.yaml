@@ -36,12 +36,12 @@ jobs:
       - name: Install server npm packages
         uses: bahmutov/npm-install@v1
         with:
-          working-directory: server
+          working-directory: mern/server
 
       - name: Install client npm packages
         uses: bahmutov/npm-install@v1
         with:
-          working-directory: client
+          working-directory: mern/client
 
       - name: Start server in the background
         env: 
@@ -54,5 +54,5 @@ jobs:
       - name: Install Cypress and run tests
         uses: cypress-io/github-action@v2
         with:
-          working-directory: client
+          working-directory: mern/client
         
