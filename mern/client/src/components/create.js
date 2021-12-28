@@ -69,7 +69,7 @@ export default class Create extends Component {
         <form onSubmit={this.onSubmit}>
           <div className="form-group">
             <label>Name of the person: </label>
-            <input
+            <input id="name"
               type="text"
               className="form-control"
               value={this.state.person_name}
@@ -79,6 +79,7 @@ export default class Create extends Component {
           <div className="form-group">
             <label>Person's position: </label>
             <input
+              id="position"
               type="text"
               className="form-control"
               value={this.state.person_position}
