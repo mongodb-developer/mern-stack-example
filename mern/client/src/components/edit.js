@@ -1,159 +1,142 @@
-import React,  {Component}  from "react";
-// This will require to npm install axios
-import axios from "axios";
-import { withRouter } from "react-router";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router";
 
-class Edit extends Component {
-  // This is the constructor that stores the data.
-  constructor(props) {
-    super(props);
+export default function Edit() {
+  const [form, setForm] = useState({
+    name: "",
+    position: "",
+    level: "",
+    records: [],
+  });
+  const params = useParams();
+  const navigate = useNavigate();
 
-    this.onChangePersonName = this.onChangePersonName.bind(this);
-    this.onChangePersonPosition = this.onChangePersonPosition.bind(this);
-    this.onChangePersonLevel = this.onChangePersonLevel.bind(this);
-    this.onSubmit = this.onSubmit.bind(this);
+  useEffect(() => {
+    async function fetchData() {
+      const id = params.id.toString();
+      const response = await fetch(`http://localhost:5000/record/${params.id.toString()}`);
 
-    this.state = {
-      person_name: "",
-      person_position: "",
-      person_level: "",
-      records: [],
-    };
-  }
-  // This will get the record based on the id from the database.
-  componentDidMount() {
-    axios
-      .get("http://localhost:5000/record/" + this.props.match.params.id)
-      .then((response) => {
-        this.setState({
-          person_name: response.data.person_name,
-          person_position: response.data.person_position,
-          person_level: response.data.person_level,
-        });
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
+      if (!response.ok) {
+        const message = `An error has occured: ${response.statusText}`;
+        window.alert(message);
+        return;
+      }
+
+      const record = await response.json();
+      if (!record) {
+        window.alert(`Record with id ${id} not found`);
+        navigate("/");
+        return;
+      }
+
+      setForm(record);
+    }
+
+    fetchData();
+
+    return;
+  }, [params.id, navigate]);
 
   // These methods will update the state properties.
-  onChangePersonName(e) {
-    this.setState({
-      person_name: e.target.value,
+  function updateForm(value) {
+    return setForm((prev) => {
+      return { ...prev, ...value };
     });
   }
 
-  onChangePersonPosition(e) {
-    this.setState({
-      person_position: e.target.value,
-    });
-  }
-
-  onChangePersonLevel(e) {
-    this.setState({
-      person_level: e.target.value,
-    });
-  }
-
-  // This function will handle the submission.
-  onSubmit(e) {
+  async function onSubmit(e) {
     e.preventDefault();
-    const newEditedperson = {
-      person_name: this.state.person_name,
-      person_position: this.state.person_position,
-      person_level: this.state.person_level,
+    const editedPerson = {
+      name: form.name,
+      position: form.position,
+      level: form.level,
     };
-    console.log(newEditedperson);
 
     // This will send a post request to update the data in the database.
-    axios
-      .post(
-        "http://localhost:5000/update/" + this.props.match.params.id,
-        newEditedperson
-      )
-      .then((res) => console.log(res.data));
+    await fetch(`http://localhost:5000/update/${params.id}`, {
+      method: "POST",
+      body: JSON.stringify(editedPerson),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
 
-    this.props.history.push("/");
+    navigate("/");
   }
 
-  // This following section will display the update-form that takes the input from the user to update the data.
-  render() {
-    return (
-      <div>
-        <h3 align="center">Update Record</h3>
-        <form onSubmit={this.onSubmit}>
-          <div className="form-group">
-            <label>Person's Name: </label>
+  // This following section will display the form that takes input from the user to update the data.
+  return (
+    <div>
+      <h3>Update Record</h3>
+      <form onSubmit={onSubmit}>
+        <div className="form-group">
+          <label htmlFor="name">Name: </label>
+          <input
+            type="text"
+            className="form-control"
+            id="name"
+            value={form.name}
+            onChange={(e) => updateForm({ name: e.target.value })}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="position">Position: </label>
+          <input
+            type="text"
+            className="form-control"
+            id="position"
+            value={form.position}
+            onChange={(e) => updateForm({ position: e.target.value })}
+          />
+        </div>
+        <div className="form-group">
+          <div className="form-check form-check-inline">
             <input
-              type="text"
-              className="form-control"
-              value={this.state.person_name}
-              onChange={this.onChangePersonName}
+              className="form-check-input"
+              type="radio"
+              name="positionOptions"
+              id="positionIntern"
+              value="Intern"
+              checked={form.level === "Intern"}
+              onChange={(e) => updateForm({ level: e.target.value })}
             />
+            <label htmlFor="positionIntern" className="form-check-label">Intern</label>
           </div>
-          <div className="form-group">
-            <label>Position: </label>
+          <div className="form-check form-check-inline">
             <input
-              type="text"
-              className="form-control"
-              value={this.state.person_position}
-              onChange={this.onChangePersonPosition}
+              className="form-check-input"
+              type="radio"
+              name="positionOptions"
+              id="positionJunior"
+              value="Junior"
+              checked={form.level === "Junior"}
+              onChange={(e) => updateForm({ level: e.target.value })}
             />
+            <label htmlFor="positionJunior" className="form-check-label">Junior</label>
           </div>
-          <div className="form-group">
-            <div className="form-check form-check-inline">
-              <input
-                className="form-check-input"
-                type="radio"
-                name="priorityOptions"
-                id="priorityLow"
-                value="Intern"
-                checked={this.state.person_level === "Intern"}
-                onChange={this.onChangePersonLevel}
-              />
-              <label className="form-check-label">Intern</label>
-            </div>
-            <div className="form-check form-check-inline">
-              <input
-                className="form-check-input"
-                type="radio"
-                name="priorityOptions"
-                id="priorityMedium"
-                value="Junior"
-                checked={this.state.person_level === "Junior"}
-                onChange={this.onChangePersonLevel}
-              />
-              <label className="form-check-label">Junior</label>
-            </div>
-            <div className="form-check form-check-inline">
-              <input
-                className="form-check-input"
-                type="radio"
-                name="priorityOptions"
-                id="priorityHigh"
-                value="Senior"
-                checked={this.state.person_level === "Senior"}
-                onChange={this.onChangePersonLevel}
-              />
-              <label className="form-check-label">Senior</label>
-            </div>
-          </div>
-          <br />
+          <div className="form-check form-check-inline">
+            <input
+              className="form-check-input"
+              type="radio"
+              name="positionOptions"
+              id="positionSenior"
+              value="Senior"
+              checked={form.level === "Senior"}
+              onChange={(e) => updateForm({ level: e.target.value })}
+            />
+            <label htmlFor="positionSenior" className="form-check-label">Senior</label>
+        </div>
+        </div>
+        <br />
 
-          <div className="form-group">
-            <input
-              type="submit"
-              value="Update Record"
-              className="btn btn-primary"
-            />
-          </div>
-        </form>
-      </div>
-    );
-  }
+        <div className="form-group">
+          <input
+            type="submit"
+            value="Update Record"
+            className="btn btn-primary"
+          />
+        </div>
+      </form>
+    </div>
+  );
 }
-
-// You can get access to the history object's properties and the closest <Route>'s match via the withRouter
-// higher-order component. This makes it easier for us to edit our records.
-
-export default withRouter(Edit);
