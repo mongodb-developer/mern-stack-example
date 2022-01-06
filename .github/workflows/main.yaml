@@ -31,7 +31,7 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
         with: 
-          ref: 'testing'
+          ref: 'main-test'
 
       - name: Install server npm packages
         uses: bahmutov/npm-install@v1
