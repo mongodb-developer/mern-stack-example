@@ -14,7 +14,10 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-fileupload": "^1.4.0",
+    "express-session": "^1.17.3",
     "mongodb": "^3.6.6",
-    "mongoose": "^5.13.14"
+    "mongoose": "^5.13.14",
+    "passport": "^0.6.0",
+    "passport-auth0": "^1.4.2"
   }
 }
