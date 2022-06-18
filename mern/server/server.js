@@ -16,7 +16,7 @@ app.use('/record', require("./routes/record"));
 app.use('/', require('./routes/index.js'));
 
 //needs right address
-mongoose.connect('mongodb+srv://admin2:GJNfspGza5CdZWAJ@cluster0.c9dnp.mongodb.net/?retryWrites=true&w=majority');
+mongoose.connect('');
 
 
 //Session
