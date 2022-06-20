@@ -10,16 +10,6 @@ const port = process.env.PORT || 5000;
 require("dotenv").config({ path: "./config.env" });
 
 
-app.use(cors());
-app.use(express.json());
-app.use('/record', require("./routes/record"));
-app.use('/', require('./routes/index.js'));
-
-//needs right address
-mongoose.connect('');
-
-
-//Session
 app.use(session({
   //need to generate secret and put in .env
   secret: 'keyboard cat',
@@ -28,6 +18,18 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+
+
+app.use(cors());
+app.use(express.json());
+app.use('/record', require("./routes/record"));
+app.use('/', require('./routes/index.js'));
+
+//needs right address
+mongoose.connect('mongodb+srv://admin:pj1SoRdsaIamkJbR@cluster0.c9dnp.mongodb.net/?retryWrites=true&w=majority');
+
+
+//Session
 
 
 
