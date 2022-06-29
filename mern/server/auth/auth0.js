@@ -13,7 +13,7 @@ passport.use(new Auth0Strategy({
   clientSecret: process.env.AUTH0_CLIENT_SECRET,
   callbackURL: process.env.AUTH0_CALLBACK_URL
   },
-  // linkedin sends back the tokens and progile info
+  // linkedin sends back the tokens and profile info
   function(token, tokenSecret, profile, done) {
 
     var searchQuery = {
@@ -43,6 +43,5 @@ passport.use(new Auth0Strategy({
 
 // serialize user into the session
 init();
-
 
 module.exports = passport;

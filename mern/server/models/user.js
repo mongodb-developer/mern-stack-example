@@ -1,13 +1,10 @@
 //mongoose user scheme
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-
+const mongoose = require('mongoose');
 
 // create User Schema
-var User = new Schema({
+const User = mongoose.Schema({
   name: String,
   someID: String
 });
-
 
 module.exports = mongoose.model('users', User);

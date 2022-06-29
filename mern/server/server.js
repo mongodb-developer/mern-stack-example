@@ -26,10 +26,20 @@ app.use('/record', require("./routes/record"));
 app.use('/', require('./routes/index.js'));
 
 //needs right address
-mongoose.connect('mongodb+srv://admin:pj1SoRdsaIamkJbR@cluster0.c9dnp.mongodb.net/?retryWrites=true&w=majority');
 
+//mongoose.connect('mongodb://localhost:27017');
+mongoose.set('useUnifiedTopology', true);
+mongoose.connect('mongodb+srv://admin2:UKIJtKO5h7QJbLZM@cluster0.c9dnp.mongodb.net/?retryWrites=true&w=majority', { useNewUrlParser: true });
 
-//Session
+const User = require('./models/user');
+
+run()
+async function run() {
+  const user = new User({ name: 'Kyle', someID: 'id number' })
+  await user.save()
+  console.log(user)
+}
+
 
 
 
