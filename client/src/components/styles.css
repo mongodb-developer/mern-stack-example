@@ -1,0 +1,25 @@
+.workout-container {
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.workout-card {
+    width: 50vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    align-content: center;
+    padding: 2vh;
+    border-style: solid;
+    border: black;
+    border-width: 2px;
+}
+
+.workout-button-area {
+    /* align-self: flex-start; */
+    padding-left: 80%;
+}
