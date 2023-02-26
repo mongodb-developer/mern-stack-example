@@ -19,6 +19,7 @@ npm start
 
 Start Web server
 ```
+export NODE_OPTIONS=--openssl-legacy-provider
 cd mern/client
 npm install
 npm start
