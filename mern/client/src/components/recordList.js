@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+const BASE_URL = process.env.NODE_ENV === 'production'
+    ? ''
+    : 'http://localhost:5000'
 
 const Record = (props) => (
   <tr>
@@ -25,7 +28,7 @@ export default function RecordList() {
   // This method fetches the records from the database.
   useEffect(() => {
     async function getRecords() {
-      const response = await fetch(`http://localhost:5000/record/`);
+      const response = await fetch(`${BASE_URL}/record/`);
 
       if (!response.ok) {
         const message = `An error occured: ${response.statusText}`;
@@ -44,12 +47,18 @@ export default function RecordList() {
 
   // This method will delete a record
   async function deleteRecord(id) {
-    await fetch(`http://localhost:5000/${id}`, {
-      method: "DELETE"
-    });
+    try {
+      await fetch(`${BASE_URL}/${id}`, {
+        method: "DELETE"
+      });
 
-    const newRecords = records.filter((el) => el._id !== id);
-    setRecords(newRecords);
+      const newRecords = records.filter((el) => el._id !== id);
+      setRecords(newRecords);
+    }
+    catch(e)
+    {
+      alert("Error : " + e)
+    }
   }
 
   // This method will map out the records on the table
