@@ -12,15 +12,8 @@ PORT=5000
 
 Start server:
 ```
-cd mern/server
-npm install
-npm start
-```
-
-Start Web server
-```
 export NODE_OPTIONS=--openssl-legacy-provider
-cd mern/client
+cd mern/server
 npm install
 npm start
 ```
