@@ -48,19 +48,20 @@ export default function RecordList() {
   // This method will delete a record
   async function deleteRecord(id) {
     try {
-
       /*
         Please remove once implement mern/server/routes/record.js lines 74
       */
-      alert('Please implement the "DELETE" route on mern/server/routes/record.js lines 74, press "OK" when you done')
-      await fetch(`${BASE_URL}/${id}`, {
+      const response = await fetch(`${BASE_URL}/${id}`, {
         method: "DELETE"
       });
-
-       await  getRecords();
+    
+      if (response.status === 404) {
+        alert('Please implement the mongodb delete method. Please visit "mern/server/routes/record.js" on line 74. This is where the delete endpoint should reside');
+      } else {
+        await getRecords();
+      }
     }
-    catch(e)
-    {
+    catch(e) {
       alert("Error : " + e)
     }
   }
