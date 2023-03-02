@@ -68,6 +68,7 @@ export default function RecordList() {
 
   // This method will map out the records on the table
   function recordList() {
+    if (records.length === 0) return <div>No Records Yet</div>
     return records.map((record) => {
       return (
         <Record
