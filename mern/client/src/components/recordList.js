@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import SearchBar from './searchBar.js'
 const BASE_URL = process.env.NODE_ENV === 'production'
     ? ''
     : 'http://localhost:5000'
@@ -32,7 +33,7 @@ export default function RecordList() {
     getRecords();
 
     return; 
-  }, [records.length]);
+  }, []);
   async function getRecords() {
     const response = await fetch(`${BASE_URL}/record/`);
 
@@ -84,6 +85,7 @@ export default function RecordList() {
   return (
     <div>
       <h3>Record List</h3>
+      <SearchBar setRecords={setRecords} />
       <table className="table table-striped" style={{ marginTop: 20 }}>
         <thead>
           <tr>

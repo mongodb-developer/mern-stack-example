@@ -79,6 +79,29 @@ recordRoutes.route("/:id").delete((req, response) => {
  response.status(200)
 });
 */
+
+// This section will use atlas search
+recordRoutes.route("/search").post(async function (req, response) {
+  let db_connect = dbo.getDb();
+  let searchTerm =  req.body.searchTerm
+  try { 
+        let res = await db_connect.collection("records").aggregate([
+        {"$search": {
+            "text" : {
+              "query" : searchTerm,
+              "path" : ["name", "position"],
+              fuzzy : {}
+            }  
+        }
+    }
+  ]).toArray()
+    response.json(res);
+  }
+  catch(err){
+    if (err) throw "Query or index is not in place";
+  }
+});
+
 module.exports = recordRoutes;
 
 
