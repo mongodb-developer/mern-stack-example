@@ -26,4 +26,4 @@ npm start
 
 ## Disclaimer
 
-Use at your own risk; not a supported MongoDB product
+Use at your own risk; 
