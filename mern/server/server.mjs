@@ -3,7 +3,7 @@ import cors from "cors";
 import "./loadEnvironment.mjs";
 import records from "./routes/record.mjs";
 
-const PORT = process.env.PORT || 5050;
+const PORT = 5050;
 const app = express();
 
 app.use(cors());
