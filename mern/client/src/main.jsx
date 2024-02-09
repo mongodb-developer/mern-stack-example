@@ -5,7 +5,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import App from "./App";
-import ModifyRecord from "./components/ModifyRecord";
+import Record from "./components/Record";
 import RecordList from "./components/RecordList";
 import "./index.css";
 
@@ -21,22 +21,22 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: "/edit/:id",
-    element: <App />,
-    children: [
-      {
-        path: "/edit/:id",
-        element: <ModifyRecord />,
-      },
-    ],
-  },
-  {
     path: "/create",
     element: <App />,
     children: [
       {
         path: "/create",
-        element: <ModifyRecord />,
+        element: <Record />,
+      },
+    ],
+  },
+  {
+    path: "/edit/:id",
+    element: <App />,
+    children: [
+      {
+        path: "/edit/:id",
+        element: <Record />,
       },
     ],
   },
