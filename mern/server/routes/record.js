@@ -15,20 +15,29 @@ const router = express.Router();
 router.get("/", async (req, res) => {
 	let collection = await db.collection("records");
 	let searchQuery = req.query.search;
-	let results = [];
+	let filter = req.query.filter.split(",");
+
+	console.log(filter);
+	
+	let query = {};
 	if (searchQuery) {
-		// Search among 2 parameters Name or Position
-		results = await collection
-			.find({
-				$or: [
-					{ name: { $regex: searchQuery, $options: "i" } },
-					{ position: { $regex: searchQuery, $options: "i" } },
-				],
-			})
-			.toArray();
-	} else {
-		results = await collection.find({}).toArray();
+		query = {
+			...query,
+			$or: [
+				{ name: { $regex: searchQuery, $options: "i" } },
+				{ position: { $regex: searchQuery, $options: "i" } },
+			],
+		};
 	}
+	if(filter){
+		query = {
+			...query,
+			level: {
+				$in: filter
+			}
+		}
+	}
+	let results = await collection.find(query).toArray();
 	res.send(results).status(200);
 });
 
