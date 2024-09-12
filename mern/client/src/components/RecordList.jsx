@@ -131,10 +131,15 @@ export default function RecordList() {
 
   return (
     <>
-      <h3 className="text-lg font-semibold p-4">Employee Records</h3>
-      <h3>Load Excel Data:</h3>
-      <input type="file" id="fileInput" name="fileInput" accept=".xls, .xlsx"></input>
-      <input type="button" value="Upload" className="button" onClick={uploadFile}></input>
+      <h3 className="text-lg font-semibold mb-6">Employee Records</h3>
+      
+      <h3>Load Excel Data:</h3>  
+        
+      <input type="file" id="fileInput" name="fileInput" accept=".xls, .xlsx" className="hidden" onChange={(e) => setFileName(e.target.files[0]?.name || 'No file chosen')}></input>  
+      <label htmlFor="fileInput" className="inline-flex items-center justify-center whitespace-nowrap text-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-slate-100 h-9 rounded-md px-3 cursor-pointer"> Choose File </label>
+      
+      <input type="button" value="Upload"className="inline-flex items-center justify-center whitespace-nowrap text-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-slate-100 h-9 rounded-md px-3 cursor-pointer mb-4" onClick={uploadFile}></input>
+      
       <div className="border rounded-lg overflow-hidden">
         <div className="relative w-full overflow-auto">
             <div className="p-4">
