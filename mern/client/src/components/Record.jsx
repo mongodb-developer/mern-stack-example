@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import * as XLSX from 'xlsx';
 
 export default function Record() {
   const [form, setForm] = useState({
@@ -14,10 +15,10 @@ export default function Record() {
   useEffect(() => {
     async function fetchData() {
       const id = params.id?.toString() || undefined;
-      if(!id) return;
+      if (!id) return;
       setIsNew(false);
       const response = await fetch(
-        `http://localhost:5050/record/${params.id.toString()}`
+        `http://localhost:5050/record/${id}`
       );
       if (!response.ok) {
         const message = `An error has occurred: ${response.statusText}`;
@@ -50,7 +51,6 @@ export default function Record() {
     try {
       let response;
       if (isNew) {
-        // if we are adding a new record we will POST to /record.
         response = await fetch("http://localhost:5050/record", {
           method: "POST",
           headers: {
@@ -59,7 +59,6 @@ export default function Record() {
           body: JSON.stringify(person),
         });
       } else {
-        // if we are updating a record we will PATCH to /record/:id.
         response = await fetch(`http://localhost:5050/record/${params.id}`, {
           method: "PATCH",
           headers: {
@@ -79,23 +78,112 @@ export default function Record() {
       navigate("/");
     }
   }
+  
+  const ExcelUpload = () => {
+    const [tableData, setTableData] = useState(null);  // Store parsed Excel data
+  
+    // Function to handle the file upload
+    const handleFileUpload = (e) => {
+      const file = e.target.files[0]; // Get the uploaded file
+      const reader = new FileReader();
+  
+      reader.onload = (event) => {
+        const data = new Uint8Array(event.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheetName = workbook.SheetNames[0]; // Get the first sheet
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet); // Convert sheet to JSON
+        setTableData(jsonData); // Save parsed data to state for display and uploading
+      };
+  
+      reader.readAsArrayBuffer(file);
+    };
+  
+    // Function to handle uploading the parsed data to MongoDB
+    const handleDataUpload = async () => {
+      if (!tableData) {
+        alert("No data to upload");
+        return;
+      }
+  
+      try {
 
-  // This following section will display the form that takes the input from the user.
+        const response = await fetch(`http://localhost:5050/bulk`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(tableData), // Send JSON data to backend
+        });
+  
+        if (response.ok) {
+          alert("Data uploaded successfully");
+        } else {
+          console.log(response)
+          alert("Failed to upload data");
+        }
+      } catch (error) {
+        console.error("Error uploading data:", error);
+        alert("Error occurred while uploading");
+      }
+    };
+  
+    return (
+      <div>
+        {/* File Input */}
+        <input
+          type="file"
+          accept=".xlsx, .xls"
+          onChange={handleFileUpload}
+          className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
+        />
+  
+        {/* Show table data if available */}
+        {tableData && (
+          <div>
+            <button
+              onClick={handleDataUpload}
+              className="inline-flex items-center justify-center whitespace-nowrap text-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-slate-100 hover:text-accent-foreground h-9 rounded-md px-3 cursor-pointer mt-4"
+            >
+              Upload to MongoDB
+            </button>
+  
+            {/* Display the parsed data in a table */}
+            <table className="min-w-full mt-4 border border-gray-200">
+              <thead>
+                <tr>
+                  {Object.keys(tableData[0]).map((key) => (
+                    <th key={key} className="border p-2">{key}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {tableData.map((row, rowIndex) => (
+                  <tr key={rowIndex}>
+                    {Object.values(row).map((value, cellIndex) => (
+                      <td key={cellIndex} className="border p-2">{value}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    );
+  };  
+
   return (
     <>
       <h3 className="text-lg font-semibold p-4">Create/Update Employee Record</h3>
-      <form
-        onSubmit={onSubmit}
-        className="border rounded-lg overflow-hidden p-4"
-      >
+      <form onSubmit={onSubmit} className="border rounded-lg overflow-hidden p-4">
         <div className="grid grid-cols-1 gap-x-8 gap-y-10 border-b border-slate-900/10 pb-12 md:grid-cols-2">
           <div>
             <h2 className="text-base font-semibold leading-7 text-slate-900">
               Employee Info
             </h2>
             <p className="mt-1 text-sm leading-6 text-slate-600">
-              This information will be displayed publicly so be careful what you
-              share.
+              This information will be displayed publicly so be careful what you share.
             </p>
           </div>
 
@@ -204,6 +292,16 @@ export default function Record() {
           className="inline-flex items-center justify-center whitespace-nowrap text-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-slate-100 hover:text-accent-foreground h-9 rounded-md px-3 cursor-pointer mt-4"
         />
       </form>
+
+      <h3 className="text-lg font-semibold p-4">
+        Create Employee Records by uploading a file
+      </h3>
+
+      <form className="border rounded-lg overflow-hidden p-4" onSubmit={(e) => e.preventDefault()}>
+        <h2 className="text-base font-semibold leading-7 text-slate-900">Upload a File</h2>
+        <ExcelUpload />
+      </form>
+
     </>
   );
 }
