@@ -1,32 +1,34 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import React from 'react';
+import Popup from 'reactjs-popup';
+import 'reactjs-popup/dist/index.css';
 
 const Record = (props) => (
-  <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-    <td className="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
-      {props.record.name}
+  <tr className="border-b transition-colors hover:bg-muted/50">
+    <td className="p-4 align-middle">
+      <div className="flex items-center gap-7">
+        <input
+          type="checkbox"
+          checked={props.selectedRecords.includes(props.record._id)}
+          onChange={() => props.handleCheckboxChange(props.record._id)}
+        />
+        {props.record.name}
+      </div>
     </td>
-    <td className="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
-      {props.record.position}
-    </td>
-    <td className="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
-      {props.record.level}
-    </td>
-    <td className="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+    <td className="p-4 align-middle">{props.record.position}</td>
+    <td className="p-4 align-middle">{props.record.level}</td>
+    <td className="p-4 align-middle">
       <div className="flex gap-2">
         <Link
-          className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-slate-100 h-9 rounded-md px-3"
+          className="inline-flex items-center justify-center text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-slate-100 h-9 rounded-md px-3"
           to={`/edit/${props.record._id}`}
         >
           Edit
         </Link>
         <button
-          className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-slate-100 hover:text-accent-foreground h-9 rounded-md px-3"
-          color="red"
-          type="button"
-          onClick={() => {
-            props.deleteRecord(props.record._id);
-          }}
+          className="inline-flex items-center justify-center text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-slate-100 hover:text-accent-foreground h-9 rounded-md px-3"
+          onClick={() => props.deleteRecord(props.record._id)}
         >
           Delete
         </button>
@@ -35,11 +37,12 @@ const Record = (props) => (
   </tr>
 );
 
+
 export default function RecordList() {
   const [records, setRecords] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLevel, setSelectedLevel] = useState(""); 
-
+  const [selectedRecords, setSelectedRecords] = useState([]);
+  const [open, setOpen] = useState(false);
 
   // This method fetches the records from the database.
   useEffect(() => {
@@ -57,6 +60,8 @@ export default function RecordList() {
     return;
   }, [records.length]);
 
+  const closeModal = () => setOpen(false);
+
   // This method will delete a record
   async function deleteRecord(id) {
     await fetch(`http://localhost:5050/record/${id}`, {
@@ -64,6 +69,26 @@ export default function RecordList() {
     });
     const newRecords = records.filter((el) => el._id !== id);
     setRecords(newRecords);
+  }
+
+
+  // this method will delete selected records
+  async function deleteSelectedRecords() {
+    Promise.all(selectedRecords.map((id) => fetch(`http://localhost:5050/record/${id}`, { method: "DELETE" })))
+      .then(() => {
+        setRecords(records.filter((record) => !selectedRecords.includes(record._id)));
+        setSelectedRecords([]); // Clear selection after deletion
+        closeModal();
+      })
+      .catch(error => console.error('Error deleting records:', error));
+  }
+
+  function handleCheckboxChange(id) {
+    if (selectedRecords.includes(id)) {
+      setSelectedRecords(selectedRecords.filter((item) => item !== id));
+    } else {
+      setSelectedRecords([...selectedRecords, id]);
+    }
   }
 
   // This method will map out the records on the table
@@ -79,6 +104,8 @@ export default function RecordList() {
           <Record
             record={record}
             deleteRecord={() => deleteRecord(record._id)}
+            handleCheckboxChange={handleCheckboxChange}
+            selectedRecords={selectedRecords}
             key={record._id}
           />
         );
@@ -118,29 +145,65 @@ export default function RecordList() {
               </select>
             </div>
           </div>
-          <table className="w-full caption-bottom text-sm">
-            <thead className="[&amp;_tr]:border-b">
-              <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">
-                  Name
-                </th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">
-                  Position
-                </th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">
-                  Level
-                </th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">
-                  Action
-                </th>
+            <table className="w-full text-sm">
+            <thead>
+            <tr className="border-b">
+                <th className="px-4 text-left align-middle font-medium">Name</th>
+                <th className="px-4 text-left align-middle font-medium">Position</th>
+                <th className="px-4 text-left align-middle font-medium">Level</th>
+                <th className="px-4 text-left align-middle font-medium">Action</th>
               </tr>
             </thead>
-            <tbody className="[&amp;_tr:last-child]:border-0">
+            <tbody>
               {recordList()}
             </tbody>
           </table>
         </div>
       </div>
+      <button
+        className="mt-3 mb-3 inline-flex items-center justify-center text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-slate-100 h-9 rounded-md px-3"
+        onClick={() => setOpen(true)}
+      >
+        Delete Selected
+      </button>
+      <Popup
+  open={open}
+  closeOnDocumentClick
+  onClose={closeModal}
+  modal
+  nested
+  contentStyle={{ width: "auto", maxWidth: "600px", padding: "30px", borderRadius: "8px" }} // Increased max-width and padding
+  overlayStyle={{ background: "rgba(0,0,0,0.5)" }}
+  position="center center"
+>
+  <button
+    style={{ position: "absolute", top: "10px", right: "10px", border: "none", background: "transparent", fontSize: "16px", cursor: "pointer" }}
+    onClick={closeModal}
+  >
+    X
+  </button>
+  <div className="modal">
+    <div className="header" style={{ fontSize: "15px", marginBottom: "15px", textAlign: "center", padding: "20px 0" }}> 
+      Are you sure you want to delete the selected Records?
+    </div>
+    <div className="actions" style={{ textAlign: "center" }}>
+      <button
+        className="inline-flex items-center justify-center text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-slate-100 h-7 rounded-md px-2"
+        onClick={deleteSelectedRecords}
+        style={{ marginRight: "10px", fontSize: "14px" }}
+      >
+        Yes
+      </button>
+      <button
+        className="inline-flex items-center justify-center text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-slate-100 h-7 rounded-md px-2"
+        onClick={closeModal}
+        style={{ fontSize: "14px" }}
+      >
+        No
+      </button>
+    </div>
+  </div>
+</Popup>
     </>
   );
   }
