@@ -38,6 +38,8 @@ const Record = (props) => (
 export default function RecordList() {
   const [records, setRecords] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedLevel, setSelectedLevel] = useState(""); 
+
 
   // This method fetches the records from the database.
   useEffect(() => {
@@ -68,8 +70,9 @@ export default function RecordList() {
   function recordList() {
     return records
       .filter((record) =>
-        record.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        record.position.toLowerCase().includes(searchQuery.toLowerCase())
+        (record.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        record.position.toLowerCase().includes(searchQuery.toLowerCase())) &&
+        (selectedLevel === "" || record.level === selectedLevel)
       )
       .map((record) => {
         return (
@@ -96,7 +99,25 @@ export default function RecordList() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
+            <button
+              className="ml-2 border rounded-md p-2 bg-blue-500 text-white hover:bg-blue-700"
+              onClick={() => setSearchQuery(searchQuery)}
+            >
+             Search
+           </button>
+           <div className="relative mt-4">
+              <select
+                className="border rounded-md p-2 w-3/12"
+                value={selectedLevel}
+                onChange={(e) => setSelectedLevel(e.target.value)}
+              >
+                <option value="">Filter by Level</option>
+                <option value="Intern">Intern</option>
+                <option value="Junior">Junior</option>
+                <option value="Senior">Senior</option>
+              </select>
             </div>
+          </div>
           <table className="w-full caption-bottom text-sm">
             <thead className="[&amp;_tr]:border-b">
               <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
@@ -122,4 +143,4 @@ export default function RecordList() {
       </div>
     </>
   );
-}
+  }
