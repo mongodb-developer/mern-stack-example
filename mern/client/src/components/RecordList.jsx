@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
+import * as xlsx from 'xlsx';
 const Record = (props) => (
   <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
     <td className="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
@@ -35,6 +35,7 @@ const Record = (props) => (
   </tr>
 );
 
+
 export default function RecordList() {
   const [records, setRecords] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -68,8 +69,8 @@ export default function RecordList() {
   function recordList() {
     return records
       .filter((record) =>
-        record.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        record.position.toLowerCase().includes(searchQuery.toLowerCase())
+        (record.name && record.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (record.position && record.position.toLowerCase().includes(searchQuery.toLowerCase()))
       )
       .map((record) => {
         return (
@@ -82,9 +83,56 @@ export default function RecordList() {
       });
   }
 
+  function uploadFile() {
+    //alert user if file is not uploaded
+    if (document.getElementById('fileInput').files.length === 0) {
+      alert('Please select a file to upload.');
+      return;
+    }
+    const fileInput = document.getElementById('fileInput');
+    console.log("Uploading file...");
+    const file = fileInput.files[0];
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = xlsx.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const json = xlsx.utils.sheet_to_json(worksheet);
+      sendToServer(json);
+    };
+    reader.readAsArrayBuffer(file);
+    function sendToServer(json){
+      console.log("Sending to server...");
+      console.log(json);
+      //for each item in json, send it to server
+      for (let i = 0; i < json.length; i++) {
+        fetch('http://localhost:5050/record', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(json[i])
+        })
+          .then(response => response.json())
+          .then(data => {
+            setRecords([...records, data]);
+            console.log('Upload Successful:', data);
+          })
+          .catch((error) => {
+            console.error('Upload Error:', error);
+          });
+      }
+    }
+  }
+
   return (
     <>
       <h3 className="text-lg font-semibold p-4">Employee Records</h3>
+      <h3>Load Excel Data:</h3>
+      <input type="file" id="fileInput" name="fileInput" accept=".xls, .xlsx"></input>
+      <input type="button" value="Upload" className="button" onClick={uploadFile}></input>
       <div className="border rounded-lg overflow-hidden">
         <div className="relative w-full overflow-auto">
             <div className="p-4">
