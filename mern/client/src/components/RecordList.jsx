@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import React from 'react';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
-
+import * as xlsx from 'xlsx';
 const Record = (props) => (
   <tr className="border-b transition-colors hover:bg-muted/50">
     <td className="p-4 align-middle">
@@ -36,6 +36,7 @@ const Record = (props) => (
     </td>
   </tr>
 );
+
 
 
 export default function RecordList() {
@@ -96,9 +97,9 @@ export default function RecordList() {
   function recordList() {
     return records
       .filter((record) =>
-        (record.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        record.position.toLowerCase().includes(searchQuery.toLowerCase())) &&
-        (selectedLevel === "" || record.level === selectedLevel)
+        ((record.name && record.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (record.position && record.position.toLowerCase().includes(searchQuery.toLowerCase())) &&
+        (selectedLevel === "" || record.level === selectedLevel))
       )
       .map((record) => {
         return (
@@ -113,9 +114,63 @@ export default function RecordList() {
       });
   }
 
+  function uploadFile() {
+    //alert user if file is not uploaded
+    if (document.getElementById('fileInput').files.length === 0) {
+      alert('Please select a file to upload.');
+      return;
+    }
+    const fileInput = document.getElementById('fileInput');
+    console.log("Uploading file...");
+    const file = fileInput.files[0];
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = xlsx.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const json = xlsx.utils.sheet_to_json(worksheet);
+      sendToServer(json);
+    };
+    reader.readAsArrayBuffer(file);
+    function sendToServer(json){
+      console.log("Sending to server...");
+      console.log(json);
+      //for each item in json, send it to server
+      for (let i = 0; i < json.length; i++) {
+        fetch('http://localhost:5050/record', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(json[i])
+        })
+          .then(response => response.json())
+          .then(data => {
+            setRecords([...records, data]);
+            console.log('Upload Successful:', data);
+          })
+          .catch((error) => {
+            console.error('Upload Error:', error);
+            return;
+          });
+      }
+      alert('Upload Successful!');
+    }
+  }
+
   return (
     <>
-      <h3 className="text-lg font-semibold p-4">Employee Records</h3>
+      <h3 className="text-lg font-semibold mb-6">Employee Records</h3>
+      
+      <h3>Load Excel Data:</h3>  
+        
+      <input type="file" id="fileInput" name="fileInput" accept=".xls, .xlsx" className="hidden" onChange={(e) => setFileName(e.target.files[0]?.name || 'No file chosen')}></input>  
+      <label htmlFor="fileInput" className="inline-flex items-center justify-center whitespace-nowrap text-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-slate-100 h-9 rounded-md px-3 cursor-pointer"> Choose File </label>
+      
+      <input type="button" value="Upload"className="inline-flex items-center justify-center whitespace-nowrap text-md font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-slate-100 h-9 rounded-md px-3 cursor-pointer mb-4" onClick={uploadFile}></input>
+      
       <div className="border rounded-lg overflow-hidden">
         <div className="relative w-full overflow-auto">
             <div className="p-4">
