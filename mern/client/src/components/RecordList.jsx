@@ -43,6 +43,7 @@ export default function RecordList() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRecords, setSelectedRecords] = useState([]);
   const [open, setOpen] = useState(false);
+  const [selectedLevel, setSelectedLevel] = useState("");
 
   // This method fetches the records from the database.
   useEffect(() => {
