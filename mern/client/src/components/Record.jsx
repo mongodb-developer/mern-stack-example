@@ -108,7 +108,7 @@ export default function Record() {
   
       try {
 
-        const response = await fetch(`http://localhost:5050/bulk`, {
+        const response = await fetch(`http://localhost:5050/record/upload`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -118,6 +118,7 @@ export default function Record() {
   
         if (response.ok) {
           alert("Data uploaded successfully");
+          window.location.href = "/";
         } else {
           console.log(response)
           alert("Failed to upload data");

@@ -47,19 +47,15 @@ export default function RecordList() {
         const responseRecords = await fetch(
           `http://localhost:5050/record?search=${debouncedSearch}`
         );
-        const responseBulk = await fetch(
-          `http://localhost:5050/bulk?search=${debouncedSearch}`
-        );
 
-        if (!responseRecords.ok || !responseBulk.ok) {
+        if (!responseRecords.ok) {
           throw new Error('Failed to fetch data');
         }
 
         const recordsData = await responseRecords.json();
-        const bulkData = await responseBulk.json();
 
         // Combine or process data as needed
-        setRecords([...recordsData, ...bulkData]); // Example: combine both datasets
+        setRecords([...recordsData]); // Example: combine both datasets
       } catch (error) {
         console.error("Error fetching records:", error);
       }

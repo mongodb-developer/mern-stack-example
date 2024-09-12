@@ -11,6 +11,27 @@ import { ObjectId } from "mongodb";
 // The router will be added as a middleware and will take control of requests starting with path /record.
 const router = express.Router();
 
+// Endpoint for handling bulk Excel uploads
+router.post("/upload", async (req, res) => {
+  console.log("Request received");
+  const jsonData = req.body;
+  
+  if (!jsonData || jsonData.length === 0) {
+    return res.status(400).json({ message: "No data provided" });
+  }
+
+  try {
+    // Insert the data into MongoDB (assuming MongoDB connection is set up)
+    console.log("Inserting data into MongoDB");
+    console.log(jsonData);
+    const result = await db.collection("records").insertMany(jsonData);
+    res.status(200).json({ message: "Data uploaded successfully", result });
+  } catch (err) {
+    console.error("Error inserting data:", err);
+    res.status(500).json({ message: "Error inserting data", error: err.message });
+  }
+});
+
 // This section will help you get a list of all the records.
 router.get("/", async (req, res) => {
   let collection = await db.collection("records");
