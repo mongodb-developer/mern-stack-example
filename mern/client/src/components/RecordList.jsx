@@ -122,8 +122,10 @@ export default function RecordList() {
           })
           .catch((error) => {
             console.error('Upload Error:', error);
+            return;
           });
       }
+      alert('Upload Successful!');
     }
   }
 
