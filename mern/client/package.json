@@ -13,9 +13,14 @@
     "mongodb": "^6.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+<<<<<<< Updated upstream
     "reactjs-popup": "^2.0.6"
     ,"xlsx": "^0.18.5"
     
+=======
+    "reactjs-popup": "^2.0.6",
+    "xlsx": "^0.18.5"
+>>>>>>> Stashed changes
   },
   "devDependencies": {
     "@types/react": "^18.2.43",

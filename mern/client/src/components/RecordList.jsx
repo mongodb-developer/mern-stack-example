@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import React from 'react';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
+<<<<<<< Updated upstream
+=======
+import * as xlsx from 'xlsx';
+>>>>>>> Stashed changes
 
 const Record = (props) => (
   <tr className="border-b transition-colors hover:bg-muted/50">
