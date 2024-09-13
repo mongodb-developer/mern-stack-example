@@ -87,6 +87,38 @@ router.patch("/:id", async (req, res) => {
   }
 });
 
+router.delete('/delete', async (req, res) => {
+    try {
+        const ids = req.body.ids;
+
+        // Validate ids
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).send('Invalid or empty list of IDs');
+        }
+
+        // Convert IDs to ObjectId and filter out invalid ones
+        const objectIds = ids
+            .filter(id => ObjectId.isValid(id))  // Check if ID is a valid ObjectId string
+            .map(id => new ObjectId(id));  // Convert valid IDs to ObjectId
+
+        if (objectIds.length === 0) {
+            return res.status(400).send('No valid IDs provided');
+        }
+
+        // Perform deletion
+        const result = await db.collection('records').deleteMany({ _id: { $in: objectIds } });
+
+        if (result.deletedCount === 0) {
+            return res.status(404).send('No records found for the provided IDs');
+        }
+
+        res.status(200).send({ deletedCount: result.deletedCount });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error deleting records');
+    }
+});
+
 // This section will help you delete a record
 router.delete("/:id", async (req, res) => {
   try {
