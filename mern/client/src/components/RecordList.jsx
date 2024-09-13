@@ -4,6 +4,14 @@ import { Link } from "react-router-dom";
 const Record = (props) => (
 	<tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
 		<td className="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+			<input
+			type="checkbox"
+			role="checkbox"
+			checked={props.isSelected}
+			onChange={() => props.onSelect(props.record._id)}
+			/>
+		</td>
+		<td className="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
 			{props.record.name}
 		</td>
 		<td className="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
@@ -39,40 +47,45 @@ export default function RecordList() {
 	const [records, setRecords] = useState([]);
 	const [search, setSearch] = useState("");
 	const [debouncedSearch, setDebouncedSearch] = useState("");
+	const [selectedRecords, setSelectedRecords] = useState(new Set());
 
-	// This method fetches the records from the database.
-	useEffect(() => {
-		async function getRecords() {
-			const response = await fetch(
-				`http://localhost:5050/record?search=${debouncedSearch}`
-			);
-			if (!response.ok) {
-				const message = `An error occurred: ${response.statusText}`;
-				console.error(message);
-				return;
-			}
-			const records = await response.json();
-			setRecords(records);
-		}
-		getRecords();
-		return;
-	}, [records.length, debouncedSearch]);
+  // Fetch records from both endpoints
+  useEffect(() => {
+    async function getRecords() {
+      try {
+        const responseRecords = await fetch(
+          `http://localhost:5050/record?search=${debouncedSearch}`
+        );
 
-	useEffect(() => {
-		const timeout = setTimeout(() => {
-			setDebouncedSearch(search);
-		}, 300);
-		return () => clearTimeout(timeout);
-	}, [search]);
+        if (!responseRecords.ok) {
+          throw new Error('Failed to fetch data');
+        }
 
-	// This method will delete a record
-	async function deleteRecord(id) {
-		await fetch(`http://localhost:5050/record/${id}`, {
-			method: "DELETE",
-		});
-		const newRecords = records.filter((el) => el._id !== id);
-		setRecords(newRecords);
-	}
+        const recordsData = await responseRecords.json();
+
+	// This method will delete multiple records
+	async function bulkDeleteRecord() {
+        const idsToDelete = Array.from(selectedRecords);
+        await fetch(`http://localhost:5050/record/delete`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ids: idsToDelete }),
+        });
+        setRecords(records.filter((record) => !idsToDelete.includes(record._id)));
+        setSelectedRecords(new Set());
+    }
+
+    function handleSelect(id) {
+        setSelectedRecords((prev) => {
+            const newSelection = new Set(prev);
+            if (newSelection.has(id)) {
+                newSelection.delete(id);
+            } else {
+                newSelection.add(id);
+            }
+            return newSelection;
+        });
+    }
 
 	// This method will map out the records on the table
 	function recordList() {
@@ -81,6 +94,8 @@ export default function RecordList() {
 				<Record
 					record={record}
 					deleteRecord={() => deleteRecord(record._id)}
+					isSelected={selectedRecords.has(record._id)}
+                	onSelect={handleSelect}
 					key={record._id}
 				/>
 			);
@@ -98,12 +113,31 @@ export default function RecordList() {
 					placeholder="Search"
 					onChange={(e) => setSearch(e.target.value)}
 				/>
+				<button
+					class="bg-red-500 text-white py-2 px-4 rounded-md font-semibold hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 transition-transform transform active:scale-95"
+					onClick={bulkDeleteRecord}
+					disabled={selectedRecords.size === 0}>
+					Delete
+				</button>
 			</div>
 			<div className="border rounded-lg overflow-hidden">
 				<div className="relative w-full overflow-auto">
 					<table className="w-full caption-bottom text-sm">
 						<thead className="[&amp;_tr]:border-b">
 							<tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+								<th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">
+									<input
+                                        type="checkbox"
+                                        checked={records.length > 0 && records.every(record => selectedRecords.has(record._id))}
+                                        onChange={() => {
+                                            if (records.length > 0 && records.every(record => selectedRecords.has(record._id))) {
+                                                setSelectedRecords(new Set());
+                                            } else {
+                                                setSelectedRecords(new Set(records.map(record => record._id)));
+                                            }
+                                        }}
+                                    />
+								</th>
 								<th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">
 									Name
 								</th>
