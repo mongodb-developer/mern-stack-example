@@ -49,39 +49,19 @@ export default function RecordList() {
 	const [debouncedSearch, setDebouncedSearch] = useState("");
 	const [selectedRecords, setSelectedRecords] = useState(new Set());
 
-	// This method fetches the records from the database.
-	useEffect(() => {
-		async function getRecords() {
-			const response = await fetch(
-				`http://localhost:5050/record?search=${debouncedSearch}`
-			);
-			if (!response.ok) {
-				const message = `An error occurred: ${response.statusText}`;
-				console.error(message);
-				return;
-			}
-			const records = await response.json();
-			setRecords(records);
-		}
-		getRecords();
-		return;
-	}, [records.length, debouncedSearch]);
+  // Fetch records from both endpoints
+  useEffect(() => {
+    async function getRecords() {
+      try {
+        const responseRecords = await fetch(
+          `http://localhost:5050/record?search=${debouncedSearch}`
+        );
 
-	useEffect(() => {
-		const timeout = setTimeout(() => {
-			setDebouncedSearch(search);
-		}, 300);
-		return () => clearTimeout(timeout);
-	}, [search]);
+        if (!responseRecords.ok) {
+          throw new Error('Failed to fetch data');
+        }
 
-	// This method will delete a record
-	async function deleteRecord(id) {
-		await fetch(`http://localhost:5050/record/${id}`, {
-			method: "DELETE",
-		});
-		const newRecords = records.filter((el) => el._id !== id);
-		setRecords(newRecords);
-	}
+        const recordsData = await responseRecords.json();
 
 	// This method will delete multiple records
 	async function bulkDeleteRecord() {
