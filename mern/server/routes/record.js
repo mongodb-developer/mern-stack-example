@@ -34,9 +34,31 @@ router.post("/upload", async (req, res) => {
 
 // This section will help you get a list of all the records.
 router.get("/", async (req, res) => {
-  let collection = await db.collection("records");
-  let results = await collection.find({}).toArray();
-  res.send(results).status(200);
+	let collection = await db.collection("records");
+	let searchQuery = req.query.search;
+	let filter = req.query?.filter;
+	
+	let query = {};
+	if (searchQuery) {
+		query = {
+			...query,
+			$or: [
+				{ name: { $regex: searchQuery, $options: "i" } },
+				{ position: { $regex: searchQuery, $options: "i" } },
+			],
+		};
+	}
+	if(filter && filter != ''){
+    filter = filter.split(',');
+		query = {
+			...query,
+			level: {
+				$in: filter
+			}
+		}
+	}
+	let results = await collection.find(query).toArray();
+	res.send(results).status(200);
 });
 
 // This section will help you get a single record by id
