@@ -36,9 +36,7 @@ router.post("/upload", async (req, res) => {
 router.get("/", async (req, res) => {
 	let collection = await db.collection("records");
 	let searchQuery = req.query.search;
-	let filter = req.query?.filter?.split(",");
-
-	console.log(filter);
+	let filter = req.query?.filter;
 	
 	let query = {};
 	if (searchQuery) {
@@ -50,7 +48,8 @@ router.get("/", async (req, res) => {
 			],
 		};
 	}
-	if(filter){
+	if(filter && filter != ''){
+    filter = filter.split(',');
 		query = {
 			...query,
 			level: {
