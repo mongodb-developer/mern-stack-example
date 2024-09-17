@@ -97,21 +97,23 @@ export default function RecordList() {
   function recordList() {
     return records
       .filter((record) =>
-      ((record.name && record.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (record.position && record.position.toLowerCase().includes(searchQuery.toLowerCase())) &&
-        (selectedLevel === "" || record.level === selectedLevel))
+      (record.name && record.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (record.position && record.position.toLowerCase().includes(searchQuery.toLowerCase()))
       )
-      .map((record) => {
-        return (
-          <Record
-            record={record}
-            deleteRecord={() => deleteRecord(record._id)}
-            handleCheckboxChange={handleCheckboxChange}
-            selectedRecords={selectedRecords}
-            key={record._id}
-          />
-        );
-      });
+      .filter((record) =>
+            selectedLevel === "" || record.level === selectedLevel
+        )
+        .map((record) => {
+            return (
+                <Record
+                    record={record}
+                    deleteRecord={() => deleteRecord(record._id)}
+                    handleCheckboxChange={handleCheckboxChange}
+                    selectedRecords={selectedRecords}
+                    key={record._id}
+                />
+            );
+        });
   }
 
   function uploadFile() {
