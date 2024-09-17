@@ -1,5 +1,6 @@
 {
   "dependencies": {
-    "reactjs-popup": "^2.0.6"
+    "reactjs-popup": "^2.0.6",
+    "xlsx": "^0.18.5"
   }
 }
