@@ -36,7 +36,7 @@ router.post("/upload", async (req, res) => {
 router.get("/", async (req, res) => {
 	let collection = await db.collection("records");
 	let searchQuery = req.query.search;
-	let filter = req.query.filter.split(",");
+	let filter = req.query?.filter?.split(",");
 
 	console.log(filter);
 	
