@@ -1,0 +1,21 @@
+# Get all records
+GET http://localhost:5050/record
+
+###
+
+# Get a single record by id
+GET http://localhost:5050/record/68828659d855ee067165a5f5
+
+###
+
+# Create a new record
+POST http://localhost:5050/record
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "position": "Software Engineer",
+  "level": "Senior"
+}
+
+###
