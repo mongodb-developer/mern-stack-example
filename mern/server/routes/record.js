@@ -1,10 +1,7 @@
 import express from "express";
 
-// This will help us connect to the database
-import db from "../db/connection.js";
+import User from "../models/User.js";
 
-// This help convert the id from string to ObjectId for the _id.
-import { ObjectId } from "mongodb";
 
 // router is an instance of the express router.
 // We use it to define our routes.
@@ -13,71 +10,95 @@ const router = express.Router();
 
 // This section will help you get a list of all the records.
 router.get("/", async (req, res) => {
-  let collection = await db.collection("records");
-  let results = await collection.find({}).toArray();
-  res.send(results).status(200);
+  try {
+    const users = await User.find({});
+    res.status(200).send(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error retrieving users");
+  }
 });
 
 // This section will help you get a single record by id
 router.get("/:id", async (req, res) => {
-  let collection = await db.collection("records");
-  let query = { _id: new ObjectId(req.params.id) };
-  let result = await collection.findOne(query);
+  try {
+    const user = await User.findById(req.params.id);
 
-  if (!result) res.send("Not found").status(404);
-  else res.send(result).status(200);
+    if (!user) {
+      res.send("User not found").status(404);
+    } else {
+      res.status(200).send(user);
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error retriecing user");
+  }
 });
 
 // This section will help you create a new record.
 router.post("/", async (req, res) => {
   try {
-    let newDocument = {
+    let newUser = new User({
       name: req.body.name,
       position: req.body.position,
       level: req.body.level,
-    };
-    let collection = await db.collection("records");
-    let result = await collection.insertOne(newDocument);
-    res.send(result).status(204);
+    });
+
+    const result = await newUser.save();
+    res.status(201).json(result);
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error adding record");
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: err.message });
+    }
+    res.status(500).send("Error adding user");
   }
 });
 
 // This section will help you update a record by id.
 router.patch("/:id", async (req, res) => {
   try {
-    const query = { _id: new ObjectId(req.params.id) };
+    const userId = req.params.id;
     const updates = {
-      $set: {
-        name: req.body.name,
-        position: req.body.position,
-        level: req.body.level,
-      },
+      name: req.body.name,
+      position: req.body.position,
+      level: req.body.level,
     };
 
-    let collection = await db.collection("records");
-    let result = await collection.updateOne(query, updates);
-    res.send(result).status(200);
+    const result = await User.findByIdAndUpdate(userId, updates, {
+      new: true,
+      runValidators: true
+    });
+
+    if (!result) {
+      res.status(404).send("User not found");
+    } else {
+      res.status(200).send(result);
+    }
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error updating record");
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({ message: err.message });
+    }
+    res.status(500).send("Error updating user");
   }
 });
 
 // This section will help you delete a record
 router.delete("/:id", async (req, res) => {
   try {
-    const query = { _id: new ObjectId(req.params.id) };
+    const userId = req.params.id;
 
-    const collection = db.collection("records");
-    let result = await collection.deleteOne(query);
+    const result = await User.findByIdAndDelete(userId);
 
-    res.send(result).status(200);
+    if (!result) {
+      res.status(404).send("User not found");
+    } else {
+      res.status(200).json({ message: "User deleted successfully", deletedUser: result});
+    }
   } catch (err) {
     console.error(err);
-    res.status(500).send("Error deleting record");
+    res.status(500).send("Error deleting user");
   }
 });
 
