@@ -58,6 +58,7 @@ export default function Record() {
           },
           body: JSON.stringify(person),
         });
+        console.log(JSON.stringify(person))
       } else {
         // if we are updating a record we will PATCH to /record/:id.
         response = await fetch(`http://localhost:5050/record/${params.id}`, {
