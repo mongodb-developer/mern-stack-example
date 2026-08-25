@@ -28,8 +28,8 @@
     }
   },
 
-  "postCreateCommand": "cd mern/server && npm ci && cd ../client && npm ci",
-  "postStartCommand": "bash .devcontainer/startup.sh",
+  "postCreateCommand": "cd mern/server && npm ci && cd ../client && npm ci && bash /workspaces/mern-stack-example/.devcontainer/track.sh created || true",
+  "postStartCommand": "bash .devcontainer/startup.sh; bash /workspaces/mern-stack-example/.devcontainer/track.sh started || true",
 
   // this will open 3 bash sessions, each one running the specified command
   "postAttachCommand": {
