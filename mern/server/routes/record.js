@@ -1,4 +1,5 @@
 import express from "express";
+import crypto from "crypto";
 
 // This will help us connect to the database
 import db from "../db/connection.js";
@@ -10,6 +11,23 @@ import { ObjectId } from "mongodb";
 // We use it to define our routes.
 // The router will be added as a middleware and will take control of requests starting with path /record.
 const router = express.Router();
+
+// Require a valid API key on every request to this router so that record
+// data cannot be read or modified by unauthenticated clients.
+router.use((req, res, next) => {
+  const expectedKey = process.env.API_KEY;
+  const providedKey = req.header("x-api-key") || "";
+
+  if (
+    !expectedKey ||
+    providedKey.length !== expectedKey.length ||
+    !crypto.timingSafeEqual(Buffer.from(providedKey), Buffer.from(expectedKey))
+  ) {
+    return res.status(401).send("Unauthorized");
+  }
+
+  next();
+});
 
 // This section will help you get a list of all the records.
 router.get("/", async (req, res) => {
