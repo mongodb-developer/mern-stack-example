@@ -65,7 +65,7 @@ jobs:
           npx wait-on http://localhost:5050/record --timeout 30000 || (cat /tmp/server.log && exit 1)
 
       - name: Install Cypress and run tests
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v7
         with:
           working-directory: mern/client
           start: npm run dev
