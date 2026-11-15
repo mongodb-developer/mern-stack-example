@@ -27,7 +27,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
     "postcss": "^8.4.34",
-    "react-router-dom": "^6.22.0",
+    "react-router-dom": "^7.18.5",
     "tailwindcss": "^4.3.3",
     "vite": "^8.0.14"
   }
