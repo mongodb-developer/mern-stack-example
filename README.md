@@ -55,6 +55,7 @@ mern/
 - Node.js 20+
 - npm 9+
 - A free [MongoDB Atlas](https://www.mongodb.com/atlas?utm_campaign=devrel&utm_medium=referral&utm_source=github&utm_content=mern.stack.example&utm_term=learning.fuel) cluster
+   - Or [create an Atlas Ephemeral Cluster](https://www.mongodb.com/docs/atlas/tutorial/create-ephemeral-cluster/?utm_campaign=devrel&utm_medium=referral&utm_source=github&utm_content=mern.stack.example&utm_term=learning.fuel), a temporary Atlas Free cluster that you can claim within 7 days to convert into a standard Free cluster
 
 ## Quick Start and MongoDB Setup
 
